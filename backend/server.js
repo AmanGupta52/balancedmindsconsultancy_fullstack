@@ -1,51 +1,41 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const dotenv = require("dotenv");
-const connectDB = require("./config/db");
 const cors = require("cors");
-
-
+const connectDB = require("./config/db");
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// ✅ Allow bigger JSON requests (must be before routes)
+// middleware
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
-
-// ✅ Enable CORS
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// ✅ Auth routes
+// create HTTP server FIRST
+const server = http.createServer(app);
+
+// THEN attach socket.io
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
+
+// routes
 app.use("/api/auth", require("./routes/authRoutes"));
-
-// ✅ Expert routes
 app.use("/api/experts", require("./routes/expertRoutes"));
-
-// ✅ Booking routes
 app.use("/api/bookings", require("./routes/bookings"));
-
-// ✅ Feedback routes
 app.use("/api/feedback", require("./routes/feedbackRoutes"));
-
-// ✅ Admin routes
 app.use("/api/admin", require("./routes/adminRoutes"));
-
-// ✅ Payment routes
 app.use("/api/payment", require("./routes/paymentRoutes"));
-
-// ✅ News routes
 app.use("/api/news", require("./routes/newsRoutes"));
 
-
-// ✅ Zego Video Call routes
-app.use("/api/video-call", require("./routes/videoCall"));
-
-
-
-
-
-
+// start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
