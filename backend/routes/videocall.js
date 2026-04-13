@@ -1,61 +1,50 @@
 const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { AccessToken } = require("livekit-server-sdk");
+const jwt = require("jsonwebtoken");
 
-dotenv.config();
-const app = express();
-app.use(express.json());
-app.use(cors());
+const router = express.Router();
 
-const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY;
-const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET;
-const LIVEKIT_SERVER_URL = process.env.LIVEKIT_SERVER_URL;
+router.post("/generate-token", (req, res) => {
+    try {
+        const { roomID, userID, userName, role } = req.body;
 
-// Generate Token Function
-function generateToken(roomName, identity) {
-    const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
-        identity,
-        ttl: "2h"
-    });
+        if (!roomID || !userID || !userName) {
+            return res.status(400).json({
+                message: "roomID, userID, userName required"
+            });
+        }
 
-    at.addGrant({
-        roomJoin: true,
-        room: roomName,
-        canPublish: true,
-        canSubscribe: true,
-    });
+        const appID = Number(process.env.ZEGO_APP_ID);
+        const serverSecret = process.env.ZEGO_SERVER_SECRET;
 
-    return at.toJwt();
-}
+        if (!appID || !serverSecret) {
+            return res.status(500).json({
+                message: "Zego credentials missing"
+            });
+        }
 
-// 1️⃣ Create Room Route
-app.post("/api/create-room", async (req, res) => {
-    const { roomName } = req.body;
+        // ✅ UIKit Kit Token (JWT)
+        const payload = {
+            app_id: appID,
+            user_id: userID,
+            room_id: roomID,
+            user_name: userName,
+            role: role || "Host",
+            exp: Math.floor(Date.now() / 1000) + 60 * 60
+        };
 
-    if (!roomName)
-        return res.status(400).json({ error: "Room name required" });
+        const token = jwt.sign(payload, serverSecret);
 
-    return res.json({
-        roomName,
-        url: LIVEKIT_SERVER_URL
-    });
+        res.json({
+            token,
+            roomID,
+            userID,
+            userName
+        });
+
+    } catch (err) {
+        console.error("Token error:", err);
+        res.status(500).json({ message: "Token generation failed" });
+    }
 });
 
-// 2️⃣ Join Room Route
-app.post("/api/join-room", (req, res) => {
-    const { roomName, userId } = req.body;
-
-    if (!roomName || !userId)
-        return res.status(400).json({ error: "roomName and userId required" });
-
-    const token = generateToken(roomName, userId);
-
-    res.json({
-        url: LIVEKIT_SERVER_URL,
-        token
-    });
-});
-
-// Server Start
-app.listen(5000, () => console.log("LiveKit backend running on port 5000"));
+module.exports = router;

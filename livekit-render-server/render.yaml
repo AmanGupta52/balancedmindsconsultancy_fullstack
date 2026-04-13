@@ -12,4 +12,4 @@ services:
         value: secret
     ports:
       - port: 7880
-        protocol: tcp
+        protocol: TCP

@@ -51,7 +51,8 @@ function App() {
           <Route path="/motivation" element={<Motivation />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/news" element={<News />} />
-          <Route path="/video-call" element={<VideoCall />} />
+          <Route path="/videocall" element={<VideoCall />} />
+
 
 
           {/* Dashboards */}

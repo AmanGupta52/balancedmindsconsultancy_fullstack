@@ -188,34 +188,33 @@ function Moderator() {
     );
 
 
-  const generateVideoLink = async (booking) => {
+
+
+  const generateVideoLink = (booking) => {
     try {
-      if (!user || !user.email || !user.role) {
-        showNotification("User info missing. Cannot generate link.", "error");
-        return;
-      }
+      // 🔐 Unique room per booking
+      const roomID = `meeting-${booking._id}`;
 
-      // Pass userEmail and userRole to backend
-      const url = `${API_BASE}/api/agora/pair-token?bookingId=${booking._id}&userEmail=${encodeURIComponent(user.email)}&userRole=${encodeURIComponent(user.role)}`;
+      // 🌐 Frontend base URL
+      const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
 
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to generate token");
+      // ✅ Final meeting URL
+      const videoLink = `${FRONTEND_URL}/videocall?room=${encodeURIComponent(roomID)}`;
 
-      const data = await res.json();
+      // 📋 Copy to clipboard
+      navigator.clipboard.writeText(videoLink);
 
-      const videoUrl = `${FRONTEND_URL}/video-call?channelName=${data.channelName}&token=${data.token}&appId=${data.appId}&uid=${data.uid}`;
-
-      setMeetingLinks((prev) => ({
-        ...prev,
-        [booking._id]: videoUrl,
-      }));
-
-      showNotification("Meeting link generated!", "success");
+      // 💬 Alert user
+      alert("Video call link copied:\n\n" + videoLink);
     } catch (err) {
-      console.error("Generate link error:", err);
-      showNotification("Failed to generate meeting link.", "error");
+      console.error("VIDEO LINK ERROR:", err);
+      alert("Failed to generate video call link");
     }
   };
+
+
+
+
 
   return (
     <div className="moderator-dashboard">
