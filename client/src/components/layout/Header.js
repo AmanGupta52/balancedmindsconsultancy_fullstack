@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FiMail, FiPhone, FiMenu, FiX, FiChevronDown, FiBell, FiUser, FiLogOut, FiGrid, FiShield } from "react-icons/fi";
-import { SITE } from "../../config/site";
+import { SITE, PROVIDER } from "../../config/site";
 import { SERVICES } from "../../data/services";
 import { useAuth } from "../../context/AuthContext";
 import { useAuthModal } from "../../context/AuthModalContext";
@@ -15,7 +15,7 @@ import SocialIcon from "./SocialIcon";
 const NAV = [
   { to: "/", label: "Home", end: true },
   { to: "/about", label: "About" },
-  { to: "/experts", label: "Experts" },
+  { to: "/experts", label: PROVIDER.plural },
   { to: "/news", label: "News" },
   { to: "/contact", label: "Contact" },
 ];
@@ -134,7 +134,7 @@ export default function Header() {
   const dashboard = isAdmin
     ? { to: "/admin-dashboard", label: "Admin dashboard", icon: <FiShield /> }
     : isModerator
-    ? { to: "/moderator-dashboard", label: "Expert dashboard", icon: <FiGrid /> }
+    ? { to: "/moderator-dashboard", label: `${PROVIDER.singular} dashboard`, icon: <FiGrid /> }
     : null;
 
   return (

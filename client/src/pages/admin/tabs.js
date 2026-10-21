@@ -4,6 +4,8 @@ import { FiUserPlus } from "react-icons/fi";
 import api, { getErrorMessage } from "../../api/client";
 import useFetch from "../../hooks/useFetch";
 import { useToast } from "../../context/ToastContext";
+import { useAuth } from "../../context/AuthContext";
+import { PROVIDER } from "../../config/site";
 import { formatCurrency, formatDate, formatDateTime, formatTime, STATUS_LABELS } from "../../utils/format";
 import Modal from "../../components/ui/Modal";
 import Stars from "../../components/ui/Stars";
@@ -20,7 +22,7 @@ export function OverviewTab() {
 
   const cards = [
     { label: "Users", value: data.usersCount, icon: FiUsers },
-    { label: "Experts", value: data.expertsCount, icon: FiAward },
+    { label: PROVIDER.plural, value: data.expertsCount, icon: FiAward },
     { label: "Bookings", value: data.bookingsCount, icon: FiCalendar },
     { label: "Feedback", value: data.feedbackCount, icon: FiMessageSquare },
     { label: "Admins", value: data.adminsCount, icon: FiShield },
@@ -100,30 +102,38 @@ export const UsersTab = () => (
   />
 );
 
-/* ---------- Experts ---------- */
-export const ExpertsTab = () => (
+/* ---------- Moderators ---------- */
+const MODES = ["Online", "In-person", "Both"];
+
+export const ModeratorsTab = () => (
   <ResourceTab
-    title="Experts"
-    noun="expert"
+    title={PROVIDER.plural}
+    noun="moderator"
     multipart
-    listUrl="/admin/experts"
-    createUrl="/admin/experts"
-    updateUrl={(id) => `/admin/experts/${id}`}
-    deleteUrl={(id) => `/admin/experts/${id}`}
+    listUrl="/admin/moderators"
+    createUrl="/admin/moderators"
+    updateUrl={(id) => `/admin/moderators/${id}`}
+    deleteUrl={(id) => `/admin/moderators/${id}`}
     searchKeys={["fullName", "email", "title"]}
-    toForm={(e) => ({
-      fullName: e.fullName, email: e.email, title: e.title || "", role: e.role, availability: e.availability || "Online",
-      time: e.time || "", experience: e.experience || "", fee: e.fee ?? "",
-      specialities: (e.specialities || []).join(", "), languages: (e.languages || []).join(", "),
+    toForm={(m) => ({
+      fullName: m.fullName,
+      email: m.email,
+      title: m.title || "",
+      // older records may contain other text (e.g. "Available"); show a valid choice instead
+      availability: MODES.includes(m.availability) ? m.availability : "Online",
+      time: m.time || "",
+      experience: m.experience || "",
+      fee: m.fee ?? "",
+      specialities: (m.specialities || []).join(", "),
+      languages: (m.languages || []).join(", "),
     })}
     fields={[
       { name: "fullName", label: "Full name", required: true },
-      { name: "email", label: "Email (login)", type: "email", required: true },
-      { name: "password", label: "Password", type: "password", required: true, hint: "Minimum 8 characters", editHint: "Leave empty to keep the current password" },
-      { name: "role", label: "Role", type: "select", options: ["expert", "moderator"], hint: "Moderators can sign in to manage their bookings." },
+      { name: "email", label: "Email (used to sign in)", type: "email", required: true },
+      { name: "password", label: "Password", type: "password", required: true, hint: "Minimum 8 characters" },
       { name: "title", label: "Title / qualification" },
       { name: "experience", label: "Experience (e.g. 8+ years)" },
-      { name: "availability", label: "Mode", type: "select", options: ["Online", "In-person", "Both"] },
+      { name: "availability", label: "Mode", type: "select", options: MODES },
       { name: "time", label: "Usual availability (e.g. Mon-Fri 10am-6pm)" },
       { name: "fee", label: "Session fee (₹)", type: "number", hint: "Leave empty to use the default fee" },
       { name: "specialities", label: "Specialities", hint: "Comma separated" },
@@ -131,11 +141,10 @@ export const ExpertsTab = () => (
       { name: "img", label: "Photo (max 2 MB)", type: "file" },
     ]}
     columns={[
-      { key: "fullName", label: "Name", render: (e) => <><strong>{e.fullName}</strong><div className="text-small text-muted">{e.email}</div></> },
-      { key: "role", label: "Role", render: (e) => <span className="badge">{e.role}</span> },
+      { key: "fullName", label: "Name", render: (m) => <><strong>{m.fullName}</strong><div className="text-small text-muted">{m.email}</div></> },
       { key: "title", label: "Title" },
-      { key: "fee", label: "Fee", render: (e) => (e.fee != null ? formatCurrency(e.fee) : "Default") },
-      { key: "specialities", label: "Specialities", render: (e) => (e.specialities || []).join(", ") || "-" },
+      { key: "fee", label: "Fee", render: (m) => (m.fee != null ? formatCurrency(m.fee) : "Default") },
+      { key: "specialities", label: "Specialities", render: (m) => (m.specialities || []).join(", ") || "-" },
     ]}
   />
 );
@@ -201,6 +210,7 @@ function InviteAdmin({ onDone }) {
 }
 
 export const AdminsTab = () => {
+  const { user } = useAuth();
   const headerExtra = useCallback((reload) => <InviteAdmin onDone={reload} />, []);
   return (
     <ResourceTab
@@ -211,12 +221,14 @@ export const AdminsTab = () => {
       updateUrl={(id) => `/admin/admins/${id}`}
       deleteUrl={(id) => `/admin/admins/${id}`}
       headerExtra={headerExtra}
+      // Delete is hidden when this is the only admin, and on your own row.
+      canDelete={(row, rows) => rows.length > 1 && row._id !== user._id}
       searchKeys={["fullName", "email"]}
       toForm={(a) => ({ fullName: a.fullName, email: a.email })}
       fields={[
         { name: "fullName", label: "Full name", required: true },
         { name: "email", label: "Email", type: "email", required: true },
-        { name: "password", label: "New password", type: "password", hint: "Leave empty to keep the current password" },
+        { name: "password", label: "Password", type: "password", hint: "Minimum 8 characters" },
       ]}
       columns={[
         { key: "fullName", label: "Name" },

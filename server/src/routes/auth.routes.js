@@ -33,14 +33,15 @@ const publicAccount = (doc, role) => {
   return { ...rest, role };
 };
 
-// Finds the account across the three collections (user -> admin -> moderator).
+// Finds the account across the three collections (customer -> admin -> moderator).
 async function findAccountByEmail(email) {
-  const query = { email };
-  let account = await User.findOne(query);
+  // Case-insensitive match so older records with mixed-case e-mails still work.
+  const ci = { locale: "en", strength: 2 };
+  let account = await User.findOne({ email }).collation(ci);
   if (account) return { account, role: "user" };
-  account = await Admin.findOne(query);
+  account = await Admin.findOne({ email }).collation(ci);
   if (account) return { account, role: "admin" };
-  account = await Expert.findOne({ ...query, role: "moderator" });
+  account = await Expert.findOne({ email }).collation(ci);
   if (account) return { account, role: "moderator" };
   return null;
 }

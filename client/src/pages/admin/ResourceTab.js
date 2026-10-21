@@ -26,6 +26,7 @@ export default function ResourceTab({
   noun = "item",
   headerExtra,
   searchKeys = [],
+  canDelete = () => true,
 }) {
   const toast = useToast();
   const { data, loading, error, reload } = useFetch(listUrl);
@@ -35,6 +36,7 @@ export default function ResourceTab({
   const [file, setFile] = useState(null);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
+  const [changePassword, setChangePassword] = useState(false);
 
   const rows = useMemo(() => (data ? select(data) : []), [data, select]);
   const visible = useMemo(() => {
@@ -48,6 +50,7 @@ export default function ResourceTab({
     setForm(row ? toForm(row) : {});
     setFile(null);
     setFormError("");
+    setChangePassword(false);
   };
 
   const save = async (e) => {
@@ -56,10 +59,13 @@ export default function ResourceTab({
     setFormError("");
     try {
       const isNew = editing === "new";
-      let body = form;
+      // An empty password means "keep the current one", so it is never sent.
+      const values = { ...form };
+      if (!values.password) delete values.password;
+      let body = values;
       if (multipart) {
         body = new FormData();
-        Object.entries(form).forEach(([k, v]) => v !== undefined && v !== null && body.append(k, v));
+        Object.entries(values).forEach(([k, v]) => v !== undefined && v !== null && body.append(k, v));
         if (file) body.append("img", file);
       }
       if (isNew) await api.post(createUrl, body);
@@ -119,7 +125,7 @@ export default function ResourceTab({
                     <td>
                       <div className="actions">
                         {updateUrl && <button className="icon-btn" aria-label={`Edit ${noun}`} onClick={() => openForm(row)}><FiEdit2 /></button>}
-                        {deleteUrl && <button className="icon-btn" aria-label={`Delete ${noun}`} style={{ color: "var(--danger)" }} onClick={() => remove(row)}><FiTrash2 /></button>}
+                        {deleteUrl && canDelete(row, rows) && <button className="icon-btn" aria-label={`Delete ${noun}`} style={{ color: "var(--danger)" }} onClick={() => remove(row)}><FiTrash2 /></button>}
                       </div>
                     </td>
                   )}
@@ -135,6 +141,16 @@ export default function ResourceTab({
           {formError && <div className="alert alert--error" role="alert">{formError}</div>}
           <form onSubmit={save}>
             {fields.filter((f) => !(f.createOnly && !isNew)).map((f) => (
+              f.type === "password" && !isNew && !changePassword ? (
+                // Not rendered at all until requested, so browsers cannot autofill a saved password into it.
+                <div className="field" key={f.name}>
+                  <span className="label">{f.label}</span>
+                  <button type="button" className="btn btn--outline btn--sm" style={{ alignSelf: "flex-start" }} onClick={() => setChangePassword(true)}>
+                    Reset password
+                  </button>
+                  <span className="hint">The current password stays unchanged unless you reset it.</span>
+                </div>
+              ) : (
               <div className="field" key={f.name}>
                 <label htmlFor={`f-${f.name}`}>{f.label}</label>
                 {f.type === "select" ? (
@@ -152,13 +168,15 @@ export default function ResourceTab({
                     type={f.type || "text"}
                     value={form[f.name] ?? ""}
                     onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
-                    required={f.required && (isNew || f.type !== "password")}
+                    required={f.required}
                     minLength={f.type === "password" ? 8 : undefined}
                     autoComplete={f.type === "password" ? "new-password" : "off"}
+                    autoFocus={f.type === "password" && !isNew}
                   />
                 )}
-                {f.hint && <span className="hint">{isNew || !f.editHint ? f.hint : f.editHint}</span>}
+                {f.hint && <span className="hint">{f.hint}</span>}
               </div>
+              )
             ))}
             <button className="btn btn--primary btn--block" disabled={busy}>{busy ? "Saving..." : "Save"}</button>
           </form>

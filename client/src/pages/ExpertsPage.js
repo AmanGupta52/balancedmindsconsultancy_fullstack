@@ -3,6 +3,7 @@ import { FiSearch, FiClock, FiGlobe, FiVideo, FiMapPin } from "react-icons/fi";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import useFetch from "../hooks/useFetch";
 import { expertPhotoUrl } from "../api/client";
+import { PROVIDER } from "../config/site";
 import { useAuth } from "../context/AuthContext";
 import { useAuthModal } from "../context/AuthModalContext";
 import { useToast } from "../context/ToastContext";
@@ -17,7 +18,7 @@ import ClientFeedback from "../components/feedback/ClientFeedback";
 const unique = (lists) => [...new Set(lists.flat().filter(Boolean))].sort();
 
 export default function ExpertsPage() {
-  useDocumentTitle("Our experts");
+  useDocumentTitle(`Our ${PROVIDER.plural.toLowerCase()}`);
   const { user, isCustomer } = useAuth();
   const { openAuth } = useAuthModal();
   const toast = useToast();
@@ -55,14 +56,14 @@ export default function ExpertsPage() {
 
   return (
     <>
-      <PageHero title="Find an expert who understands you" subtitle="Browse our counsellors, therapists and coaches and book a session that suits you." crumbs={[{ label: "Experts" }]} />
+      <PageHero title={`Find a ${PROVIDER.singular.toLowerCase()} who understands you`} subtitle="Browse our counsellors, therapists and coaches and book a session that suits you." crumbs={[{ label: PROVIDER.plural }]} />
 
       <section className="section">
         <div className="container">
           <div className="filters" role="search">
             <div className="search">
               <FiSearch aria-hidden="true" />
-              <input className="input" type="search" placeholder="Search by name, title or speciality" aria-label="Search experts" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <input className="input" type="search" placeholder="Search by name, title or speciality" aria-label={`Search ${PROVIDER.plural.toLowerCase()}`} value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <select className="select" aria-label="Filter by language" value={language} onChange={(e) => setLanguage(e.target.value)}>
               <option value="">All languages</option>
@@ -82,7 +83,7 @@ export default function ExpertsPage() {
           ) : error ? (
             <ErrorState message={error} onRetry={reload} />
           ) : filtered.length === 0 ? (
-            <EmptyState title="No experts found">{hasFilters ? "Try changing or clearing your filters." : "Our experts will appear here soon."}</EmptyState>
+            <EmptyState title={`No ${PROVIDER.plural.toLowerCase()} found`}>{hasFilters ? "Try changing or clearing your filters." : `Our ${PROVIDER.plural.toLowerCase()} will appear here soon.`}</EmptyState>
           ) : (
             <div className="grid grid--3">
               {filtered.map((e, i) => (

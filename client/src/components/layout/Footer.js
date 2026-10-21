@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FiMail, FiMapPin, FiPhone, FiClock } from "react-icons/fi";
-import { SITE } from "../../config/site";
+import { SITE, PROVIDER } from "../../config/site";
 import { SERVICES } from "../../data/services";
 import SocialIcon from "./SocialIcon";
 
@@ -34,7 +34,7 @@ export default function Footer() {
             <ul className="footer__list">
               <li><Link to="/">Home</Link></li>
               <li><Link to="/about">About us</Link></li>
-              <li><Link to="/experts">Our experts</Link></li>
+              <li><Link to="/experts">Our {PROVIDER.plural.toLowerCase()}</Link></li>
               <li><Link to="/news">Wellness news</Link></li>
               <li><Link to="/contact">Contact</Link></li>
             </ul>

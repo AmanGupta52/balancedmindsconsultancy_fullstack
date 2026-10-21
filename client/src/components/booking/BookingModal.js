@@ -124,6 +124,8 @@ export default function BookingModal({ expert, onClose }) {
       rzp.open();
     } catch (err) {
       setError(getErrorMessage(err));
+      // Online payment could not start (e.g. gateway keys rejected): show the UPI option instead.
+      if (err.response?.status === 502 || err.response?.status === 503) setConfig({ razorpayEnabled: false });
       setBusy(false);
     }
   };

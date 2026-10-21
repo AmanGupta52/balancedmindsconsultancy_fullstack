@@ -178,7 +178,7 @@ router.delete(
   })
 );
 
-/* ----------------------------- EXPERTS & MODERATORS ----------------------------- */
+/* ----------------------------- MODERATORS ----------------------------- */
 const EXPERT_TEXT_FIELDS = ["fullName", "title", "availability", "time", "experience"];
 
 const expertView = (doc) => {
@@ -187,7 +187,7 @@ const expertView = (doc) => {
 };
 
 router.get(
-  "/experts",
+  "/moderators",
   asyncHandler(async (_req, res) => {
     const experts = await Expert.find().select("-password -img.data").sort({ fullName: 1 });
     res.json(experts.map(expertView));
@@ -195,19 +195,17 @@ router.get(
 );
 
 router.post(
-  "/experts",
+  "/moderators",
   upload.single("img"),
   asyncHandler(async (req, res) => {
     const email = normalizeEmail(req.body.email);
     if (!req.body.fullName?.trim() || !isEmail(email)) throw new HttpError(400, "Name and a valid email are required");
     if (!isStrongPassword(req.body.password)) throw new HttpError(400, "Password must be at least 8 characters");
-    const role = req.body.role === "moderator" ? "moderator" : "expert";
-
     const expert = new Expert({
       ...pick(req.body, EXPERT_TEXT_FIELDS),
       expertId: crypto.randomUUID(),
       email,
-      role,
+      role: "moderator",
       password: await hash(req.body.password),
       specialities: toArray(req.body.specialities),
       languages: toArray(req.body.languages),
@@ -215,12 +213,12 @@ router.post(
     });
     if (req.file) expert.img = { data: req.file.buffer, contentType: req.file.mimetype };
     await expert.save();
-    res.status(201).json({ message: "Expert added", expert: expertView(expert) });
+    res.status(201).json({ message: "Moderator added", moderator: expertView(expert) });
   })
 );
 
 router.put(
-  "/experts/:id",
+  "/moderators/:id",
   upload.single("img"),
   asyncHandler(async (req, res) => {
     assertObjectId(req.params.id);
@@ -229,31 +227,33 @@ router.put(
       if (!isEmail(req.body.email)) throw new HttpError(400, "Invalid email");
       updates.email = normalizeEmail(req.body.email);
     }
-    if (req.body.role) updates.role = req.body.role === "moderator" ? "moderator" : "expert";
     if (req.body.specialities !== undefined) updates.specialities = toArray(req.body.specialities);
     if (req.body.languages !== undefined) updates.languages = toArray(req.body.languages);
-    if (req.body.fee !== undefined) updates.fee = req.body.fee === "" ? undefined : Number(req.body.fee);
+    const clearFee = req.body.fee === "";
+    if (req.body.fee !== undefined && !clearFee) updates.fee = Number(req.body.fee);
     if (req.body.password) {
       if (!isStrongPassword(req.body.password)) throw new HttpError(400, "Password must be at least 8 characters");
       updates.password = await hash(req.body.password);
     }
     if (req.file) updates.img = { data: req.file.buffer, contentType: req.file.mimetype };
 
-    const expert = await Expert.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).select(
+    const change = { $set: updates };
+    if (clearFee) change.$unset = { fee: "" }; // empty fee = use the default fee again
+    const expert = await Expert.findByIdAndUpdate(req.params.id, change, { new: true, runValidators: true }).select(
       "-password -img.data"
     );
-    if (!expert) throw new HttpError(404, "Expert not found");
-    res.json({ message: "Expert updated", expert: expertView(expert) });
+    if (!expert) throw new HttpError(404, "Moderator not found");
+    res.json({ message: "Moderator updated", moderator: expertView(expert) });
   })
 );
 
 router.delete(
-  "/experts/:id",
+  "/moderators/:id",
   asyncHandler(async (req, res) => {
     assertObjectId(req.params.id);
     const expert = await Expert.findByIdAndDelete(req.params.id);
-    if (!expert) throw new HttpError(404, "Expert not found");
-    res.json({ message: "Expert deleted" });
+    if (!expert) throw new HttpError(404, "Moderator not found");
+    res.json({ message: "Moderator deleted" });
   })
 );
 

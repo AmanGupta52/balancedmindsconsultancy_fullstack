@@ -46,11 +46,18 @@ router.post(
       throw new HttpError(409, "This booking does not need payment");
     }
 
-    const order = await razorpay.orders.create({
-      amount: Math.round(booking.fee * 100), // paise
-      currency: "INR",
-      receipt: `booking_${booking._id}`,
-    });
+    let order;
+    try {
+      order = await razorpay.orders.create({
+        amount: Math.round(booking.fee * 100), // paise
+        currency: "INR",
+        receipt: `booking_${booking._id}`,
+      });
+    } catch (err) {
+      // Most common cause: wrong/expired RAZORPAY_KEY_ID or RAZORPAY_SECRET, or test/live keys mixed.
+      console.error("Razorpay order failed:", err?.error?.description || err?.message || err);
+      throw new HttpError(502, "Online payment is unavailable right now. Please pay by UPI instead.");
+    }
     booking.orderId = order.id;
     await booking.save();
     res.json({ order, keyId: rzp.keyId });

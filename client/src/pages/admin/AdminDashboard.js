@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { FiPieChart, FiCalendar, FiUsers, FiAward, FiShield, FiMessageSquare, FiMail } from "react-icons/fi";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import { useAuth } from "../../context/AuthContext";
-import { OverviewTab, BookingsTab, UsersTab, ExpertsTab, AdminsTab, FeedbackTab, MessagesTab } from "./tabs";
+import { PROVIDER } from "../../config/site";
+import { OverviewTab, BookingsTab, UsersTab, ModeratorsTab, AdminsTab, FeedbackTab, MessagesTab } from "./tabs";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: FiPieChart, Component: OverviewTab },
   { id: "bookings", label: "Bookings", icon: FiCalendar, Component: BookingsTab },
   { id: "users", label: "Users", icon: FiUsers, Component: UsersTab },
-  { id: "experts", label: "Experts", icon: FiAward, Component: ExpertsTab },
+  { id: "moderators", label: PROVIDER.plural, icon: FiAward, Component: ModeratorsTab },
   { id: "feedback", label: "Feedback", icon: FiMessageSquare, Component: FeedbackTab },
   { id: "messages", label: "Messages", icon: FiMail, Component: MessagesTab },
   { id: "admins", label: "Admins", icon: FiShield, Component: AdminsTab },

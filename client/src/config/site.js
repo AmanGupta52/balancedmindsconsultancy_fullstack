@@ -23,4 +23,7 @@ export const SITE = {
   ],
 };
 
+// What the people who deliver sessions are called across the site (one place to change it).
+export const PROVIDER = { singular: "Moderator", plural: "Moderators" };
+
 export const API_BASE = (process.env.REACT_APP_API_BASE || "").replace(/\/$/, "");

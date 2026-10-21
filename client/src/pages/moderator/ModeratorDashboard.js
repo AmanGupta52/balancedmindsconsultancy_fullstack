@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, Loading } from "../../components/ui/Feedback";
 const FILTERS = ["all", "pending", "accepted", "completed", "rejected"];
 
 export default function ModeratorDashboard() {
-  useDocumentTitle("Expert dashboard");
+  useDocumentTitle("Moderator dashboard");
   const { user, logout } = useAuth();
   const toast = useToast();
   const { data, setData, loading, error, reload } = useFetch("/bookings");
@@ -46,7 +46,7 @@ export default function ModeratorDashboard() {
     <div className="dash">
       <div className="dash__top">
         <div className="container">
-          <h1>Expert dashboard</h1>
+          <h1>Moderator dashboard</h1>
           <div className="row">
             <Link to="/">View site</Link>
             <button className="btn btn--light btn--sm" onClick={logout}>Sign out</button>
