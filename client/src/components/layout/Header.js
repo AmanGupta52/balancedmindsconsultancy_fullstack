@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { FiMail, FiPhone, FiMenu, FiX, FiChevronDown, FiBell, FiUser, FiLogOut, FiGrid, FiShield } from "react-icons/fi";
+import { FiMail, FiPhone, FiMenu, FiX, FiChevronDown, FiArrowRight, FiBell, FiUser, FiLogOut, FiGrid, FiShield } from "react-icons/fi";
 import { SITE, PROVIDER } from "../../config/site";
 import { SERVICES } from "../../data/services";
 import { useAuth } from "../../context/AuthContext";
@@ -21,6 +21,12 @@ const NAV = [
 ];
 
 const REMINDER_WINDOW_MIN = 10;
+
+// Must match the desktop breakpoint in styles/layout.css (min-width: 1280px).
+// Hover-to-open only applies on desktop with a real mouse; touch uses the chevron.
+const canHover = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(min-width: 1280px) and (hover: hover)").matches;
 
 export default function Header() {
   const { user, logout, isAdmin, isModerator, isCustomer } = useAuth();
@@ -134,8 +140,8 @@ export default function Header() {
   const dashboard = isAdmin
     ? { to: "/admin-dashboard", label: "Admin dashboard", icon: <FiShield /> }
     : isModerator
-    ? { to: "/moderator-dashboard", label: `${PROVIDER.singular} dashboard`, icon: <FiGrid /> }
-    : null;
+      ? { to: "/moderator-dashboard", label: `${PROVIDER.singular} dashboard`, icon: <FiGrid /> }
+      : null;
 
   return (
     <>
@@ -165,7 +171,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <div className="nav__tools" style={{ order: 2 }}>
+          <div className="nav__tools">
             {isCustomer && (
               <button type="button" className="icon-btn" aria-label={`Notifications${upcomingCount ? `, ${upcomingCount} upcoming` : ""}`} onClick={() => setNotifOpen(true)}>
                 <FiBell />
@@ -185,22 +191,47 @@ export default function Header() {
           </div>
 
           <div id="primary-nav" className={`nav__menu ${menuOpen ? "is-open" : ""}`}>
-            <nav aria-label="Primary" className="nav__links" style={{ listStyle: "none" }}>
+            <nav aria-label="Primary" className="nav__links">
               {NAV.slice(0, 2).map((item) => (
                 <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `nav__link ${isActive ? "is-active" : ""}`}>
                   {item.label}
                 </NavLink>
               ))}
 
-              <div className={`nav__dropdown ${servicesOpen ? "is-open" : ""}`}>
-                <button type="button" className="nav__dropdown-btn" aria-expanded={servicesOpen} aria-haspopup="true" onClick={() => setServicesOpen((o) => !o)}>
-                  Services <FiChevronDown aria-hidden="true" />
-                </button>
+              {/* Services: hover (desktop) shows every service page; clicking the word opens /services */}
+              <div
+                className={`nav__dropdown ${servicesOpen ? "is-open" : ""}`}
+                onMouseEnter={() => canHover() && setServicesOpen(true)}
+                onMouseLeave={() => canHover() && setServicesOpen(false)}
+              >
+                <div className="nav__dropdown-head">
+                  <NavLink
+                    to="/services"
+                    className={({ isActive }) => `nav__link nav__link--services ${isActive ? "is-active" : ""}`}
+                    onClick={() => { setServicesOpen(false); setMenuOpen(false); }}
+                  >
+                    Services
+                  </NavLink>
+                  <button
+                    type="button"
+                    className="nav__dropdown-btn"
+                    aria-label="Show services list"
+                    aria-expanded={servicesOpen}
+                    aria-haspopup="true"
+                    onClick={() => setServicesOpen((o) => !o)}
+                  >
+                    <FiChevronDown aria-hidden="true" />
+                  </button>
+                </div>
                 <div className="nav__dropdown-menu">
                   {SERVICES.map((s) => (
-                    <Link key={s.slug} to={`/services/${s.slug}`}>{s.title}</Link>
+                    <Link key={s.slug} to={`/services/${s.slug}`} onClick={() => setServicesOpen(false)}>
+                      {s.title}
+                    </Link>
                   ))}
-                  <Link to="/services" style={{ fontWeight: 600, color: "var(--brand-700)" }}>View all services</Link>
+                  <Link to="/services" className="nav__dropdown-all" onClick={() => { setServicesOpen(false); setMenuOpen(false); }}>
+                    View all services <FiArrowRight aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
 
