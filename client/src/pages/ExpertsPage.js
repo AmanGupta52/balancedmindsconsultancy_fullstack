@@ -23,7 +23,7 @@ export default function ExpertsPage() {
   const { openAuth } = useAuthModal();
   const toast = useToast();
   const { data, loading, error, reload } = useFetch("/experts");
-  const experts = data || [];
+  const experts = useMemo(() => data || [], [data]);
 
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("");
