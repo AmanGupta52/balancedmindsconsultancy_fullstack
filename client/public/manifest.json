@@ -1,0 +1,9 @@
+{
+  "short_name": "Balanced Minds",
+  "name": "Balanced Minds Consultancy",
+  "icons": [{ "src": "favicon.png", "type": "image/png", "sizes": "192x192" }],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0f5c57",
+  "background_color": "#fbf8f1"
+}

@@ -1,0 +1,69 @@
+:root {
+  /* Brand */
+  --brand-900: #0a3d3a;
+  --brand-800: #0f4c48;
+  --brand-700: #0f5c57;
+  --brand-600: #157a73;
+  --brand-100: #dcefec;
+  --brand-50: #eef7f5;
+  --accent-600: #c97f12;
+  --accent-500: #e9a23b;
+  --accent-100: #fcecd0;
+
+  /* Neutrals */
+  --bg: #fbf8f1;
+  --surface: #ffffff;
+  --surface-alt: #f4efe3;
+  --ink: #1d2b2e;
+  --ink-soft: #46575b;
+  --muted: #6b7b7f;
+  --line: #e4ddcc;
+
+  /* Status */
+  --success: #1f8a5b;
+  --success-bg: #e3f5ec;
+  --danger: #c0392b;
+  --danger-bg: #fbe9e6;
+  --warning: #b7791f;
+  --warning-bg: #fdf1d9;
+  --info: #2563a8;
+  --info-bg: #e5eefb;
+
+  /* Type */
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --fs-2xl: clamp(1.6rem, 1.3rem + 1.2vw, 2.1rem);
+  --fs-3xl: clamp(2rem, 1.5rem + 2vw, 3rem);
+  --fs-hero: clamp(2.3rem, 1.6rem + 3.4vw, 4rem);
+
+  /* Spacing (4px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+  --section-y: clamp(3rem, 2rem + 4vw, 6rem);
+
+  /* Shape + depth */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(29, 43, 46, 0.06), 0 1px 3px rgba(29, 43, 46, 0.05);
+  --shadow: 0 6px 20px rgba(29, 43, 46, 0.08);
+  --shadow-lg: 0 18px 44px rgba(15, 76, 72, 0.16);
+  --ring: 0 0 0 3px rgba(21, 122, 115, 0.3);
+
+  /* Layout */
+  --container: 1180px;
+  --header-h: 72px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}

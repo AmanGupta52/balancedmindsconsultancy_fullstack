@@ -1,0 +1,29 @@
+.dash { min-height: 100dvh; background: #f3f0e6; }
+.dash__top { background: var(--brand-900); color: #fff; }
+.dash__top .container { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding-block: 0.8rem; flex-wrap: wrap; }
+.dash__top h1 { color: #fff; font-size: var(--fs-xl); margin: 0; }
+.dash__top a { color: #cfe6e2; }
+.dash__body { padding-block: var(--sp-6); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--sp-5); scrollbar-width: thin; }
+.tabs button { border: 0; background: none; padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: var(--fs-sm); color: var(--ink-soft); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.4rem; }
+.tabs button:hover { background: var(--brand-50); }
+.tabs button.is-active { background: var(--brand-700); color: #fff; }
+
+.stat-grid { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); margin-bottom: var(--sp-5); }
+.stat { display: flex; gap: var(--sp-4); align-items: center; }
+.stat .card__icon { margin: 0; }
+.stat strong { display: block; font-family: var(--font-display); font-size: 1.8rem; line-height: 1; color: var(--brand-900); }
+.stat span { color: var(--muted); font-size: var(--fs-sm); }
+.toolbar { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.toolbar h2 { margin: 0; font-size: var(--fs-xl); }
+.actions { display: flex; gap: var(--sp-2); flex-wrap: nowrap; }
+.chart-box { height: 280px; }
+
+.booking-grid { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.booking-card { display: flex; flex-direction: column; gap: var(--sp-4); }
+.booking-card__head { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; }
+.booking-card__head .who { display: flex; gap: var(--sp-3); align-items: center; min-width: 0; }
+.booking-card__head h3 { margin: 0; font-size: var(--fs-md); font-family: var(--font-body); font-weight: 700; }
+.booking-card__head p { margin: 0; font-size: var(--fs-xs); color: var(--muted); word-break: break-all; }
+.booking-card__issue { background: var(--surface-alt); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; font-size: var(--fs-sm); color: var(--ink-soft); margin: 0; }
+.booking-card__actions { margin-top: auto; display: flex; flex-wrap: wrap; gap: var(--sp-2); }

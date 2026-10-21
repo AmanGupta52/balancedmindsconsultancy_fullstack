@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# Balanced Minds Consultancy
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Full-stack website for a counselling & coaching practice: service pages, expert directory, session booking with payments, video sessions, and admin / expert dashboards.
 
-## Available Scripts
+**Stack:** React 19 (Create React App) · Express 5 · MongoDB (Mongoose) · Razorpay · ZEGOCLOUD · NewsAPI
 
-In the project directory, you can run:
+## Project structure
 
-### `npm start`
+```
+client/                      React app (deploy to Netlify/Vercel; build dir: client, output: build)
+  public/                    index.html, logo, favicon, _redirects (SPA routing)
+  src/
+    api/                     axios instance (token + 401 handling)
+    config/site.js           brand + contact details (single place to edit)
+    context/                 Auth, Toast, AuthModal providers
+    data/                    services, team, FAQs, image URLs
+    hooks/                   useFetch, useReveal, useDocumentTitle
+    utils/                   formatting + wellness-check scoring (+ tests)
+    styles/                  design tokens, base, components, layout, pages, dashboard
+    components/              layout/, ui/, auth/, booking/, feedback/, notifications/, map/, assessment/
+    pages/                   Home, About, Services, ServiceDetail, Experts, Contact, News, Profile, Video, Legal, 404
+    pages/admin, moderator   dashboards
+server/                      Express API (deploy to Render/Railway; root dir: server)
+  src/
+    config/                  env validation, DB
+    middleware/              auth (JWT + role), error handler
+    models/                  User, Admin, Expert, Booking, Feedback, Otp, ContactMessage
+    routes/                  auth, experts, bookings, payment, feedback, news, video, contact, admin
+    services/                mailer, otp, pricing/coupons, ZEGO token
+    scripts/seedAdmin.js     creates the first admin
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Run locally
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm run install:all
+cp server/.env.example server/.env      # fill in MONGO_URI and JWT_SECRET at minimum
+cp client/.env.example client/.env
+npm run seed:admin                      # after setting ADMIN_EMAIL / ADMIN_PASSWORD in server/.env
+npm run dev:server                      # http://localhost:5000
+npm run dev:client                      # http://localhost:3000
+```
 
-### `npm test`
+Without email credentials, OTP codes are printed in the server console (development only).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Roles
 
-### `npm run build`
+| Role | How it is created | What it can do |
+|---|---|---|
+| Customer | Registers on the site (email OTP) | Book sessions, see status/joining link, edit profile |
+| Moderator (expert) | Admin → Experts → role "moderator" | Accept/decline/complete own bookings, mark UPI payments received |
+| Admin | `npm run seed:admin`, then invite from the dashboard | Everything, incl. users, experts, feedback, messages |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Deployment changes vs. the old layout
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* The frontend moved to `client/` and the backend to `server/`. Update your hosting settings: Netlify base directory `client` (build `npm run build`, publish `client/build`); Render root directory `server` (start `npm start`).
+* Set `REACT_APP_API_BASE` (client) to your API URL, and `CLIENT_URLS` / `FRONTEND_URL` (server) to your site URL.
+* Old URLs (`/Counselling`, `/career`, ...) redirect to `/services/<slug>`.
+* Video calls now use a server-generated ZEGO token, so **`REACT_APP_ZEGO_SERVER_SECRET` must no longer exist in the client**. Set `ZEGO_APP_ID` and `ZEGO_SERVER_SECRET` on the server.
+* Coupons moved to the server: set `COUPONS=AMAN:100` (CODE:PERCENT) to keep the old free-session code.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Security checklist (important)
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The uploaded project contained `.env` files with live credentials (database, e-mail, Razorpay, ZEGO, news key), and the old `.gitignore` did not exclude them. If they were ever pushed to GitHub, treat them as leaked and **rotate all of them**, then purge them from git history.
