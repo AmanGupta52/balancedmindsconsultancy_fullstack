@@ -376,6 +376,15 @@ stateDiagram-v2
   }
 ```
 
+### 7.4 Video calls: how they work
+
+* **Technology:** [ZEGOCLOUD](https://www.zegocloud.com) *UIKit Prebuilt* (`@zegocloud/zego-uikit-prebuilt`), a ready-made one-to-one video UI built on WebRTC. Camera, microphone, screen sharing and chat come from the SDK.
+* **Room:** every booking gets its own private room, `meeting-<bookingId>`, limited to 2 people.
+* **Security:** the browser never sees the ZEGO secret. It asks `POST /api/video/token`; the server checks that the signed-in person is the booking's customer, its moderator, or an admin, and that the booking is *Confirmed*, then returns a short-lived (1 hour) **token04** signed with `ZEGO_SERVER_SECRET`.
+* **Joining:** customers use *Join session* (bell icon or Profile); moderators use *Join call* on their dashboard. Both open `/videocall?booking=<id>`. If a moderator pastes an external link (Meet, Zoom), customers are sent there instead.
+* **Requirements:** HTTPS (or `localhost`) for camera access, and `ZEGO_APP_ID` + `ZEGO_SERVER_SECRET` on the server.
+* **Loaded on demand:** the SDK is large, so it is only downloaded on the video page.
+
 ---
 
 ## 8. Data model
